@@ -94,7 +94,8 @@ if ! ANDROID_JAR_PATH=$(resolve_android_jar); then
     fi
     if [ -n "$SDKMGR" ] && [ -x "$SDKMGR" ]; then
         yes | "$SDKMGR" --licenses >/dev/null || true
-        "$SDKMGR" "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+        # AGP 9.2 requires platform 36 + build-tools 36.0.0 minimum.
+        "$SDKMGR" "platforms;android-36" "build-tools;36.0.0" "platform-tools"
         ANDROID_JAR_PATH=$(resolve_android_jar) || {
             echo "✗ sdkmanager ran but no platform appeared under $ANDROID_HOME/platforms"
             exit 1
@@ -103,7 +104,7 @@ if ! ANDROID_JAR_PATH=$(resolve_android_jar); then
         cat >&2 <<EOF
 ✗ No Android platform installed and no sdkmanager found.
   Install once via:
-    sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+    sdkmanager "platforms;android-36" "build-tools;36.0.0" "platform-tools"
   or set ANDROID_JAR=/path/to/android.jar before running this script.
 EOF
         exit 1
