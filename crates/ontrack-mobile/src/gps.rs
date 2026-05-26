@@ -11,7 +11,7 @@
 
 #![cfg(target_os = "android")]
 
-use jni::objects::{JObject, JString, JValue};
+use jni::objects::{JObject, JValue};
 use jni::JavaVM;
 use ontrack_core::geocoder::Location;
 

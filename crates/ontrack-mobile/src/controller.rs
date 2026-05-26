@@ -264,27 +264,27 @@ fn current_location() -> Option<ontrack_core::geocoder::Location> {
     ontrack_core::geocoder::get_current_location()
 }
 
+#[allow(unused_variables)]
 fn open_url(url: &str) {
     #[cfg(target_os = "android")]
     {
         let _ = open_url_android(url);
-        return;
     }
-    #[cfg(not(target_os = "android"))]
+    // Best-effort cross-platform launcher.
+    #[cfg(target_os = "linux")]
     {
-        // Best-effort cross-platform launcher.
-        #[cfg(target_os = "linux")]
         let _ = std::process::Command::new("xdg-open").arg(url).spawn();
-        #[cfg(target_os = "macos")]
+    }
+    #[cfg(target_os = "macos")]
+    {
         let _ = std::process::Command::new("open").arg(url).spawn();
-        #[cfg(target_os = "windows")]
+    }
+    #[cfg(target_os = "windows")]
+    {
         let _ = std::process::Command::new("rundll32")
             .args(["url.dll,FileProtocolHandler", url])
             .spawn();
     }
-    // Suppress unused-warning when on Android.
-    #[allow(unused_variables)]
-    let _ = url;
 }
 
 #[cfg(target_os = "android")]
@@ -316,7 +316,7 @@ fn open_url_android(url: &str) -> anyhow::Result<()> {
         &[JValue::Object(&JObject::from(action)), JValue::Object(&uri)],
     )?;
     env.call_method(
-        intent,
+        &intent,
         "addFlags",
         "(I)Landroid/content/Intent;",
         &[JValue::Int(0x10000000)], // FLAG_ACTIVITY_NEW_TASK
