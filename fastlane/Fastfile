@@ -23,10 +23,16 @@ platform :android do
   desc "Build ONTrack Android AAB and upload to Closed Testing (API track 'alpha')"
   lane :closed do
     root = File.expand_path("..", __dir__)
-    sh("bash #{root}/scripts/build-android.sh")
+    aab  = ENV.fetch(
+      "ONTRACK_AAB",
+      "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab"
+    )
+    sh("bash #{root}/scripts/build-android.sh") unless
+      ENV["ONTRACK_SKIP_BUILD"] == "1" && File.exist?(aab)
+    UI.user_error!("AAB missing at #{aab}") unless File.exist?(aab)
 
     upload_to_play_store(
-      aab: "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab",
+      aab: aab,
       track: ENV.fetch("FASTLANE_TRACK", "alpha"),
       release_status: "draft",
       skip_upload_metadata: true,
@@ -39,10 +45,16 @@ platform :android do
   desc "Build ONTrack Android AAB and upload to Internal testing (fastest review path)"
   lane :internal do
     root = File.expand_path("..", __dir__)
-    sh("bash #{root}/scripts/build-android.sh")
+    aab  = ENV.fetch(
+      "ONTRACK_AAB",
+      "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab"
+    )
+    sh("bash #{root}/scripts/build-android.sh") unless
+      ENV["ONTRACK_SKIP_BUILD"] == "1" && File.exist?(aab)
+    UI.user_error!("AAB missing at #{aab}") unless File.exist?(aab)
 
     upload_to_play_store(
-      aab: "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab",
+      aab: aab,
       track: "internal",
       release_status: "draft",
       skip_upload_metadata: true,
@@ -52,11 +64,32 @@ platform :android do
     )
   end
 
-  desc "Validate the AAB and service-account credentials WITHOUT uploading"
+  desc "Validate service-account credentials only (no build, no AAB needed)"
+  lane :check_auth do
+    json_key = File.expand_path(
+      "#{ENV['XDG_CONFIG_HOME'] || "#{ENV['HOME']}/.config"}/fastlane/google-play-ontrack.json"
+    )
+    validate_play_store_json_key(json_key: json_key)
+  end
+
+  desc "Build + dry-run upload (validate_only). Builds AAB then asks Google to validate it."
   lane :validate do
     root = File.expand_path("..", __dir__)
+    aab  = ENV.fetch(
+      "ONTRACK_AAB",
+      "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab"
+    )
+
+    # Build if the AAB is missing. (skipped if ONTRACK_SKIP_BUILD=1 and the
+    # AAB already exists on disk.)
+    unless ENV["ONTRACK_SKIP_BUILD"] == "1" && File.exist?(aab)
+      sh("bash #{root}/scripts/build-android.sh")
+    end
+
+    UI.user_error!("AAB still missing at #{aab} after build") unless File.exist?(aab)
+
     upload_to_play_store(
-      aab: "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab",
+      aab: aab,
       track: "internal",
       validate_only: true,
       skip_upload_metadata: true,
