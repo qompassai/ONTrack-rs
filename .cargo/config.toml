@@ -1,0 +1,24 @@
+# Workspace-local cargo configuration.
+#
+# This file deliberately scopes Android cross-compile settings to the workspace
+# so they don't fight with a developer's ~/.cargo/config.toml. In particular,
+# it clears `rustflags` for the Android targets — host configs that use
+# `-C target-cpu=native` (common on Arch/Hyprland) leak Intel-specific feature
+# flags (`+vaes`, `+waitpkg`, `raptorlake`, etc.) into the NDK's aarch64 clang
+# and break the build.
+#
+# We intentionally do NOT pin `linker = "..."` here. `cargo-ndk` injects the
+# correct linker, AR, CC, and CXX from the NDK toolchain at invocation time;
+# hard-coding a path would just create a second source of truth that drifts.
+
+[target.aarch64-linux-android]
+rustflags = []
+
+[target.armv7-linux-androideabi]
+rustflags = []
+
+[target.x86_64-linux-android]
+rustflags = []
+
+[target.i686-linux-android]
+rustflags = []
