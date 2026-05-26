@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  /qompassai/ontrack-rs/crates/ontrack-mobile/android/app/src/main/AndroidManifest.xml
+  Qompass AI — OnTrack Android manifest
+  Copyright (C) 2026 Qompass AI, All rights reserved.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.qompassai.ontrack">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+                     android:maxSdkVersion="32" />
+
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+
+    <application
+        android:label="OnTrack"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
+        android:hasFragileUserData="true"
+        android:supportsRtl="true">
+
+        <!-- android-activity NativeActivity entry point.
+             The native library name MUST match the cdylib name of
+             ontrack-mobile (libontrack_mobile.so). -->
+        <activity
+            android:name="android.app.NativeActivity"
+            android:exported="true"
+            android:configChanges="orientation|keyboardHidden|screenSize|screenLayout|smallestScreenSize|uiMode|density"
+            android:resizeableActivity="true"
+            android:launchMode="singleTask">
+
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="ontrack_mobile" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

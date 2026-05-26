@@ -1,0 +1,30 @@
+[package]
+name        = "ontrack-desktop"
+version     = { workspace = true }
+edition     = { workspace = true }
+license     = { workspace = true }
+authors     = { workspace = true }
+description = "OnTrack desktop GUI (egui/eframe)"
+
+[[bin]]
+name = "ontrack"
+path = "src/main.rs"
+
+[features]
+default = []
+voice   = ["ontrack-core/voice"]
+
+[dependencies]
+ontrack-core = { path = "../ontrack-core" }
+
+eframe       = { workspace = true }
+egui         = { workspace = true }
+egui_extras  = { workspace = true }
+rfd          = { workspace = true }
+
+anyhow       = { workspace = true }
+log          = { workspace = true }
+env_logger   = { workspace = true }
+serde        = { workspace = true }
+serde_json   = { workspace = true }
+dotenvy      = { workspace = true }

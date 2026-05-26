@@ -1,0 +1,79 @@
+[package]
+name        = "ontrack-mobile"
+version     = { workspace = true }
+edition     = { workspace = true }
+license     = { workspace = true }
+authors     = { workspace = true }
+description = "OnTrack mobile (Android) GUI — Slint"
+
+[lib]
+# `cdylib` is what cargo-apk / Gradle's `externalNativeBuild` link into the APK
+# `rlib`   is used when running the same crate as a desktop preview binary
+crate-type = ["cdylib", "rlib"]
+name       = "ontrack_mobile"
+
+[[bin]]
+name = "ontrack-mobile-preview"
+path = "src/preview_main.rs"
+
+[features]
+default = []
+voice   = ["ontrack-core/voice"]
+
+[dependencies]
+ontrack-core    = { path = "../ontrack-core" }
+
+slint           = { workspace = true }
+anyhow          = { workspace = true }
+log             = { workspace = true }
+serde           = { workspace = true }
+serde_json      = { workspace = true }
+env_logger      = { workspace = true }
+
+[target.'cfg(target_os = "android")'.dependencies]
+android_logger   = { workspace = true }
+android-activity = { workspace = true }
+jni              = { workspace = true }
+ndk-context      = { workspace = true }
+
+[build-dependencies]
+slint-build = { workspace = true }
+
+# cargo-apk metadata — used by `cargo apk build` / `cargo apk run`.
+[package.metadata.android]
+package         = "com.qompassai.ontrack"
+build_targets   = ["aarch64-linux-android", "armv7-linux-androideabi"]
+runtime_libs    = "runtime_libs"
+resources       = "android/app/src/main/res"
+assets          = "../../assets"
+
+[package.metadata.android.sdk]
+min_sdk_version    = 26
+target_sdk_version = 35
+compile_sdk_version = 35
+
+[[package.metadata.android.uses_feature]]
+name = "android.hardware.location.gps"
+required = false
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.INTERNET"
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.ACCESS_NETWORK_STATE"
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.ACCESS_COARSE_LOCATION"
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.ACCESS_FINE_LOCATION"
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.RECORD_AUDIO"
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.READ_EXTERNAL_STORAGE"
+
+[package.metadata.android.application]
+label = "OnTrack"
+icon  = "@mipmap/ic_launcher"

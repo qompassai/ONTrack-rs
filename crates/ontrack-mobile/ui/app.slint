@@ -1,0 +1,147 @@
+// /qompassai/ontrack-rs/crates/ontrack-mobile/ui/app.slint
+// Qompass AI — OnTrack mobile UI
+// Copyright (C) 2026 Qompass AI, All rights reserved.
+// -----------------------------------------------------
+// Slint UI for the Android/desktop-preview build.
+
+import { Button, LineEdit, ListView, VerticalBox, HorizontalBox, ComboBox, GroupBox, TabWidget, ScrollView, ProgressIndicator, StandardListView } from "std-widgets.slint";
+
+export struct StopItem {
+    label: string,
+    address: string,
+}
+
+export component AppWindow inherits Window {
+    title: "OnTrack";
+    preferred-width: 412px;
+    preferred-height: 892px;
+    background: #002855;
+
+    // ── Bindable state, exposed to Rust ─────────────────────────────────
+    in-out property <[StopItem]> stops;
+    in-out property <string> new-stop-text;
+    in-out property <string> status-text: "";
+    in-out property <bool> busy: false;
+    in-out property <string> result-summary: "";
+    in-out property <[StopItem]> ordered-stops;
+
+    // Settings
+    in-out property <string> google-maps-api-key;
+    in-out property <string> osrm-base-url: "http://router.project-osrm.org";
+    in-out property <string> arcgis-item-id;
+
+    in-out property <int> backend-index: 0;     // 0=OSRM, 1=Google, 2=Haversine
+
+    // ── Callbacks dispatched to Rust ────────────────────────────────────
+    callback add-stop();
+    callback remove-stop(int);
+    callback optimize-route();
+    callback open-maps();
+    callback export-csv();
+    callback use-current-location();
+    callback start-voice();
+    callback stop-voice();
+    callback save-settings();
+
+    TabWidget {
+        Tab {
+            title: "Home";
+            VerticalBox {
+                padding: 12px;
+                spacing: 8px;
+
+                HorizontalBox {
+                    LineEdit {
+                        placeholder-text: "Add address…";
+                        text <=> new-stop-text;
+                        accepted => { root.add-stop(); }
+                    }
+                    Button { text: "Add"; clicked => { root.add-stop(); } }
+                }
+                HorizontalBox {
+                    Button { text: "📍 Current"; clicked => { root.use-current-location(); } }
+                    Button { text: "🎤 Voice"; clicked => { root.start-voice(); } }
+                }
+
+                GroupBox {
+                    title: "Stops";
+                    ScrollView {
+                        height: 320px;
+                        VerticalLayout {
+                            for stop[idx] in stops: HorizontalBox {
+                                Text { text: stop.label; width: 28px; }
+                                Text { text: stop.address; }
+                                Button {
+                                    text: "✕";
+                                    clicked => { root.remove-stop(idx); }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                HorizontalBox {
+                    Text { text: "Backend:"; vertical-alignment: center; }
+                    ComboBox {
+                        model: ["OSRM (free)", "Google", "Haversine"];
+                        current-index <=> backend-index;
+                    }
+                }
+
+                Button {
+                    text: "🚀  Optimize Route";
+                    enabled: !busy && stops.length > 0;
+                    clicked => { root.optimize-route(); }
+                }
+                if busy: ProgressIndicator { indeterminate: true; }
+                Text { text: status-text; }
+            }
+        }
+
+        Tab {
+            title: "Results";
+            VerticalBox {
+                padding: 12px;
+                spacing: 8px;
+                Text { text: result-summary; font-size: 16px; }
+                HorizontalBox {
+                    Button { text: "📋 Google Maps"; clicked => { root.open-maps(); } }
+                    Button { text: "💾 Export CSV"; clicked => { root.export-csv(); } }
+                }
+                GroupBox {
+                    title: "Ordered Stops";
+                    ScrollView {
+                        height: 480px;
+                        VerticalLayout {
+                            for stop[idx] in ordered-stops: HorizontalBox {
+                                Text { text: stop.label; width: 28px; }
+                                Text { text: stop.address; }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Tab {
+            title: "Settings";
+            VerticalBox {
+                padding: 12px;
+                spacing: 8px;
+                Text { text: "Google Maps API key"; }
+                LineEdit { text <=> google-maps-api-key; input-type: password; }
+                Text { text: "OSRM Base URL"; }
+                LineEdit { text <=> osrm-base-url; }
+                Text { text: "ArcGIS Item ID"; }
+                LineEdit { text <=> arcgis-item-id; }
+                Button { text: "💾 Save"; clicked => { root.save-settings(); } }
+                Text {
+                    text: "Keys are stored locally on the device only.";
+                    color: #c0c8d4;
+                    font-size: 12px;
+                    wrap: word-wrap;
+                }
+            }
+        }
+    }
+}

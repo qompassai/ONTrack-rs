@@ -1,0 +1,33 @@
+[package]
+name        = "ontrack-core"
+version     = { workspace = true }
+edition     = { workspace = true }
+license     = { workspace = true }
+authors     = { workspace = true }
+description = "OnTrack core — pure-Rust route optimization library"
+
+[lib]
+name = "ontrack_core"
+path = "src/lib.rs"
+
+[features]
+default = []
+voice   = ["dep:cpal", "dep:hound", "dep:whisper-rs"]
+
+[dependencies]
+reqwest      = { workspace = true }
+serde        = { workspace = true }
+serde_json   = { workspace = true }
+csv          = { workspace = true }
+calamine     = { workspace = true }
+tokio        = { workspace = true }
+anyhow       = { workspace = true }
+thiserror    = { workspace = true }
+url          = { workspace = true }
+urlencoding  = { workspace = true }
+log          = { workspace = true }
+dotenvy      = { workspace = true }
+
+cpal         = { workspace = true, optional = true }
+hound        = { workspace = true, optional = true }
+whisper-rs   = { workspace = true, optional = true }
