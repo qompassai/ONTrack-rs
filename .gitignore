@@ -57,3 +57,11 @@ fastlane.log
 .env.local
 .env.*.local
 !.env.example
+
+# ─── Ruby / Bundler (fastlane) ──────────────────────────────────────────────
+# .bundle/config is checked in so every dev gets vendor/bundle automatically.
+# Gemfile.lock IS checked in so versions are pinned reproducibly.
+# Everything else bundler creates is local-only.
+vendor/bundle/
+.bundle/cache/
+.bundle/ruby/
