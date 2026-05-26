@@ -8,7 +8,7 @@ default_platform(:android)
 # If you've created a *custom* closed-testing track in Console (e.g.
 # "qompass-internal"), pass its exact name via the FASTLANE_TRACK env var.
 #
-# Pre-flight (required ONE TIME before any lane will work):
+# Pre-flight (required ONE TIME before any upload lane will work):
 #   1. Sign in to https://play.google.com/console as phaedrusflow
 #   2. Create app -> Application name = ONTrack,
 #      Package name = com.qompassai.ontrack  (must match Appfile)
@@ -19,19 +19,56 @@ default_platform(:android)
 #      Users & permissions in Play Console.
 #   See fastlane/INIT.md for the full runbook.
 
+ONTRACK_AAB_DEFAULT = "crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab"
+ONTRACK_PACKAGE     = "com.qompassai.ontrack"
+
+# Helper: resolve the AAB path (env override -> default), build it unless
+# ONTRACK_SKIP_BUILD=1 and a cached AAB already exists, then return the path.
+def ensure_aab(root)
+  aab = ENV.fetch("ONTRACK_AAB", "#{root}/#{ONTRACK_AAB_DEFAULT}")
+  unless ENV["ONTRACK_SKIP_BUILD"] == "1" && File.exist?(aab)
+    sh("bash #{root}/scripts/build-android.sh")
+  end
+  UI.user_error!("AAB still missing at #{aab} after build") unless File.exist?(aab)
+  aab
+end
+
+# Helper: wrap upload_to_play_store with a friendly error when the Play
+# Console app hasn't been bootstrapped yet. The Play Developer API v3
+# cannot create new apps; fastlane only updates existing ones, so the
+# first AAB MUST be uploaded manually through the Console UI.
+def upload_with_bootstrap_hint(**opts)
+  upload_to_play_store(**opts)
+rescue => e
+  msg = e.message.to_s
+  if msg.include?("Package not found") || msg.include?("applicationNotFound")
+    UI.error  "==============================================================="
+    UI.error  "Play Console app not bootstrapped yet."
+    UI.error  ""
+    UI.error  "The Play Developer API cannot create apps. You must do a one-"
+    UI.error  "time manual upload through the Console UI before fastlane can"
+    UI.error  "push releases:"
+    UI.error  ""
+    UI.error  "  1. https://play.google.com/console  (sign in as phaedrusflow)"
+    UI.error  "  2. Create app  ->  Package name: #{ONTRACK_PACKAGE}"
+    UI.error  "  3. Testing -> Internal testing -> Create new release"
+    UI.error  "  4. Upload the AAB that just built:"
+    UI.error  "       #{opts[:aab]}"
+    UI.error  "  5. Save the draft (no rollout required)."
+    UI.error  ""
+    UI.error  "Full runbook: fastlane/INIT.md"
+    UI.error  "==============================================================="
+  end
+  raise
+end
+
 platform :android do
   desc "Build ONTrack Android AAB and upload to Closed Testing (API track 'alpha')"
   lane :closed do
     root = File.expand_path("..", __dir__)
-    aab  = ENV.fetch(
-      "ONTRACK_AAB",
-      "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab"
-    )
-    sh("bash #{root}/scripts/build-android.sh") unless
-      ENV["ONTRACK_SKIP_BUILD"] == "1" && File.exist?(aab)
-    UI.user_error!("AAB missing at #{aab}") unless File.exist?(aab)
+    aab  = ensure_aab(root)
 
-    upload_to_play_store(
+    upload_with_bootstrap_hint(
       aab: aab,
       track: ENV.fetch("FASTLANE_TRACK", "alpha"),
       release_status: "draft",
@@ -45,15 +82,9 @@ platform :android do
   desc "Build ONTrack Android AAB and upload to Internal testing (fastest review path)"
   lane :internal do
     root = File.expand_path("..", __dir__)
-    aab  = ENV.fetch(
-      "ONTRACK_AAB",
-      "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab"
-    )
-    sh("bash #{root}/scripts/build-android.sh") unless
-      ENV["ONTRACK_SKIP_BUILD"] == "1" && File.exist?(aab)
-    UI.user_error!("AAB missing at #{aab}") unless File.exist?(aab)
+    aab  = ensure_aab(root)
 
-    upload_to_play_store(
+    upload_with_bootstrap_hint(
       aab: aab,
       track: "internal",
       release_status: "draft",
@@ -75,20 +106,9 @@ platform :android do
   desc "Build + dry-run upload (validate_only). Builds AAB then asks Google to validate it."
   lane :validate do
     root = File.expand_path("..", __dir__)
-    aab  = ENV.fetch(
-      "ONTRACK_AAB",
-      "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab"
-    )
+    aab  = ensure_aab(root)
 
-    # Build if the AAB is missing. (skipped if ONTRACK_SKIP_BUILD=1 and the
-    # AAB already exists on disk.)
-    unless ENV["ONTRACK_SKIP_BUILD"] == "1" && File.exist?(aab)
-      sh("bash #{root}/scripts/build-android.sh")
-    end
-
-    UI.user_error!("AAB still missing at #{aab} after build") unless File.exist?(aab)
-
-    upload_to_play_store(
+    upload_with_bootstrap_hint(
       aab: aab,
       track: "internal",
       validate_only: true,
