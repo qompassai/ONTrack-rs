@@ -1,1 +1,59 @@
+# ─── Rust ────────────────────────────────────────────────────────────────────
 target/
+**/target/
+*.rs.bk
+Cargo.lock.bak
+
+# ─── Android / Gradle build cache ────────────────────────────────────────────
+# These are derived outputs and get rewritten on every build. Tracking them
+# adds GBs to the repo and creates merge conflicts on every push.
+.gradle/
+**/.gradle/
+**/build/
+**/app/build/
+**/.kotlin/
+**/.cxx/
+local.properties
+
+# Pre-Android-Studio IDEA project files (we don't use them)
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# ─── Fastlane ────────────────────────────────────────────────────────────────
+# `report.xml` is regenerated on every lane invocation and embeds full
+# stack traces (which sometimes capture secrets like JWT tokens).
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+# Service-account JSONs must NEVER be committed.
+fastlane/*.json
+google-play-*.json
+
+# ─── Android keystore / signing ──────────────────────────────────────────────
+*.keystore
+*.jks
+keystore.properties
+key.properties
+
+# ─── Logs (often contain Crates.io / Cargo / PyPI / Play tokens) ────────────
+*.log
+log.txt
+buildozer_debug.log
+fastlane.log
+
+# ─── Editor / OS cruft ──────────────────────────────────────────────────────
+.DS_Store
+*.swp
+*.swo
+.nvim.lua
+.vscode/
+*~
+
+# ─── Secrets / env ──────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+!.env.example

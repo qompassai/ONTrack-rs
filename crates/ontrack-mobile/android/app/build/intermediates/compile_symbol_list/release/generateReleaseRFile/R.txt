@@ -1,5 +1,0 @@
-int color tds_accent 0x0
-int color tds_navy 0x0
-int mipmap ic_launcher 0x0
-int mipmap ic_launcher_round 0x0
-int string app_name 0x0

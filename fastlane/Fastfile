@@ -1,18 +1,68 @@
 default_platform(:android)
 
+# Play Developer API track names (per Google):
+#   production | beta | alpha | internal
+# The Play Console UI calls them:
+#   Production | Open testing | Closed testing | Internal testing
+# So lane :closed uploads to the API's `alpha` track (= Closed Testing).
+# If you've created a *custom* closed-testing track in Console (e.g.
+# "qompass-internal"), pass its exact name via the FASTLANE_TRACK env var.
+#
+# Pre-flight (required ONE TIME before any lane will work):
+#   1. Sign in to https://play.google.com/console as phaedrusflow
+#   2. Create app -> Application name = ONTrack,
+#      Package name = com.qompassai.ontrack  (must match Appfile)
+#   3. Manually upload one signed AAB to Internal testing via the Console UI
+#      (this is what registers the package_name with the API; fastlane
+#      cannot create the app, only update it).
+#   4. Grant the fastlane service account Release permissions under
+#      Users & permissions in Play Console.
+#   See fastlane/INIT.md for the full runbook.
+
 platform :android do
-  desc "Build ONTrack Android AAB and upload to closed testing"
+  desc "Build ONTrack Android AAB and upload to Closed Testing (API track 'alpha')"
   lane :closed do
     root = File.expand_path("..", __dir__)
     sh("bash #{root}/scripts/build-android.sh")
 
     upload_to_play_store(
       aab: "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab",
-      track: "closed",
+      track: ENV.fetch("FASTLANE_TRACK", "alpha"),
       release_status: "draft",
       skip_upload_metadata: true,
       skip_upload_images: true,
-      skip_upload_screenshots: true
+      skip_upload_screenshots: true,
+      skip_upload_apk: true
+    )
+  end
+
+  desc "Build ONTrack Android AAB and upload to Internal testing (fastest review path)"
+  lane :internal do
+    root = File.expand_path("..", __dir__)
+    sh("bash #{root}/scripts/build-android.sh")
+
+    upload_to_play_store(
+      aab: "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab",
+      track: "internal",
+      release_status: "draft",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_apk: true
+    )
+  end
+
+  desc "Validate the AAB and service-account credentials WITHOUT uploading"
+  lane :validate do
+    root = File.expand_path("..", __dir__)
+    upload_to_play_store(
+      aab: "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab",
+      track: "internal",
+      validate_only: true,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_apk: true
     )
   end
 end
