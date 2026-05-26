@@ -25,7 +25,7 @@ fn main() -> Result<()> {
     eframe::run_native(
         "OnTrack",
         options,
-        Box::new(|cc| Box::new(app::OnTrackApp::new(cc))),
+        Box::new(|cc| Ok(Box::new(app::OnTrackApp::new(cc)))),
     )
     .map_err(|e| anyhow::anyhow!("eframe error: {e}"))?;
     Ok(())

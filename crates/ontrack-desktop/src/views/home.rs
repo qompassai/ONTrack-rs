@@ -81,7 +81,7 @@ pub fn ui(app: &mut OnTrackApp, ui: &mut egui::Ui) {
     // Backend selection
     ui.horizontal(|ui| {
         ui.label("Distance backend:");
-        egui::ComboBox::from_id_source("backend_combo")
+        egui::ComboBox::from_id_salt("backend_combo")
             .selected_text(format!("{:?}", app.backend))
             .show_ui(ui, |ui| {
                 ui.selectable_value(&mut app.backend, Backend::Osrm, "OSRM (free)");
