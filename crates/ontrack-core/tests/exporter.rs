@@ -1,6 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-core/tests/exporter.rs
-// Qompass AI — exporter integration tests
-// Copyright (C) 2026 Qompass AI, All rights reserved.
 use ontrack_core::{
     build_fieldmaps_url, build_maps_url, build_maps_url_chunked, build_waze_url, export_csv,
 };

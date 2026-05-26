@@ -1,8 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-desktop/src/app.rs
-// Qompass AI — OnTrack desktop: top-level eframe app
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// -----------------------------------------------------
-//! Top-level eframe application, view router, and shared state.
 
 use eframe::{egui, App, CreationContext, Frame};
 use ontrack_core::config::Settings;
@@ -55,7 +50,6 @@ impl OnTrackApp {
         }
     }
 
-    /// Kick off geocode → matrix → solve in a background thread.
     pub fn run_optimize(&self) {
         let addresses = self.addresses.clone();
         let backend = self.backend;
@@ -142,7 +136,6 @@ impl OnTrackApp {
 
 impl App for OnTrackApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
-        // Top navigation bar.
         egui::TopBottomPanel::top("nav").show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.heading("OnTrack");
@@ -156,7 +149,6 @@ impl App for OnTrackApp {
             });
         });
 
-        // If a job just finished, auto-switch to Results.
         let (busy, has_result) = {
             let w = self.worker.lock().unwrap();
             (w.busy, w.result.is_some())
@@ -171,7 +163,6 @@ impl App for OnTrackApp {
             View::Settings => views::settings::ui(self, ui),
         });
 
-        // Repaint while a worker is busy so progress updates.
         let busy = self.worker.lock().unwrap().busy;
         if busy {
             ctx.request_repaint_after(std::time::Duration::from_millis(100));

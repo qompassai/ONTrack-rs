@@ -1,12 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-mobile/src/controller.rs
-// Qompass AI — OnTrack mobile: glue between Slint UI and ontrack_core
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// --------------------------------------------------------------------
-//! Wires Slint callbacks to `ontrack_core` logic.
-//!
-//! All long-running work (geocoding, distance matrix, solve) runs on a
-//! Slint background `Timer` thread via `slint::spawn_local` so the UI
-//! stays responsive on lower-spec Android devices.
 
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
@@ -30,7 +21,6 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
         ..Shared::default()
     }));
 
-    // Reflect initial settings into UI fields.
     {
         let s = shared.lock().unwrap();
         ui.set_google_maps_api_key(s.settings.google_maps_api_key.clone().into());
@@ -38,7 +28,6 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
         ui.set_arcgis_item_id(s.settings.arcgis_item_id.clone().into());
     }
 
-    // ── add-stop ────────────────────────────────────────────────────────
     {
         let ui_weak = ui.as_weak();
         let shared = shared.clone();
@@ -55,7 +44,6 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
         });
     }
 
-    // ── remove-stop ─────────────────────────────────────────────────────
     {
         let ui_weak = ui.as_weak();
         let shared = shared.clone();
@@ -70,7 +58,6 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
         });
     }
 
-    // ── current location ───────────────────────────────────────────────
     {
         let ui_weak = ui.as_weak();
         let shared = shared.clone();
@@ -86,7 +73,6 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
         });
     }
 
-    // ── optimize ────────────────────────────────────────────────────────
     {
         let ui_weak = ui.as_weak();
         let shared = shared.clone();
@@ -102,7 +88,6 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
                 _ => Backend::Osrm,
             };
 
-            // Update settings snapshot from UI.
             {
                 let mut s = shared.lock().unwrap();
                 s.settings.google_maps_api_key = ui.get_google_maps_api_key().to_string();
@@ -176,7 +161,6 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
         });
     }
 
-    // ── open maps URL ──────────────────────────────────────────────────
     {
         let ui_weak = ui.as_weak();
         ui.on_open_maps(move || {
@@ -190,7 +174,6 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
         });
     }
 
-    // ── export CSV (Android: app-private files; desktop: /tmp) ─────────
     {
         let ui_weak = ui.as_weak();
         ui.on_export_csv(move || {
@@ -209,7 +192,6 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
         });
     }
 
-    // ── save settings ──────────────────────────────────────────────────
     {
         let ui_weak = ui.as_weak();
         let shared = shared.clone();
@@ -223,7 +205,6 @@ pub fn wire(ui: &AppWindow) -> Result<()> {
         });
     }
 
-    // ── voice (stubbed unless built with `voice` feature) ──────────────
     {
         let ui_weak = ui.as_weak();
         ui.on_start_voice(move || {
@@ -270,7 +251,6 @@ fn open_url(url: &str) {
     {
         let _ = open_url_android(url);
     }
-    // Best-effort cross-platform launcher.
     #[cfg(target_os = "linux")]
     {
         let _ = std::process::Command::new("xdg-open").arg(url).spawn();

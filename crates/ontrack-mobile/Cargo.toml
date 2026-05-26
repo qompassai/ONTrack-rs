@@ -7,8 +7,6 @@ authors     = { workspace = true }
 description = "OnTrack mobile (Android) GUI — Slint"
 
 [lib]
-# `cdylib` is what cargo-apk / Gradle's `externalNativeBuild` link into the APK
-# `rlib`   is used when running the same crate as a desktop preview binary
 crate-type = ["cdylib", "rlib"]
 name       = "ontrack_mobile"
 
@@ -39,7 +37,6 @@ ndk-context      = { workspace = true }
 [build-dependencies]
 slint-build = { workspace = true }
 
-# cargo-apk metadata — used by `cargo apk build` / `cargo apk run`.
 [package.metadata.android]
 package         = "com.qompassai.ontrack"
 build_targets   = ["aarch64-linux-android", "armv7-linux-androideabi"]

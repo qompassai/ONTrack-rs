@@ -1,12 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-mobile/src/lib.rs
-// Qompass AI — OnTrack mobile entry (Android + preview)
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// -----------------------------------------------------
-//! OnTrack mobile crate.
-//!
-//! - `android_main` is the entry point for `cargo-apk` / android-activity.
-//! - `desktop_main` runs the same Slint UI as a desktop preview binary.
-//! - `controller` wires the Slint UI to `ontrack_core`.
 
 pub mod controller;
 
@@ -15,7 +6,6 @@ pub mod gps;
 
 slint::include_modules!();
 
-/// Bootstraps the Slint UI, attaches all callbacks, and runs the event loop.
 pub fn run() -> anyhow::Result<()> {
     let ui = AppWindow::new()?;
     controller::wire(&ui)?;
@@ -23,7 +13,6 @@ pub fn run() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Android entry point — called by `android-activity` via `cargo-apk`.
 #[cfg(target_os = "android")]
 #[no_mangle]
 fn android_main(app: android_activity::AndroidApp) {

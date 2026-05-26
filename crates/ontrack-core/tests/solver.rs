@@ -1,6 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-core/tests/solver.rs
-// Qompass AI — solver integration tests
-// Copyright (C) 2026 Qompass AI, All rights reserved.
 use ontrack_core::geocoder::Location;
 use ontrack_core::matrix::haversine;
 use ontrack_core::solver::{solve_open_tsp, solve_tsp, SolverConfig};
@@ -11,7 +8,6 @@ fn loc(name: &str, lat: f64, lng: f64) -> Location {
 
 #[test]
 fn solves_realistic_spokane_loop() {
-    // A few rough Spokane-area waypoints. Pure Haversine cost matrix.
     let pts = vec![
         loc("Downtown Spokane",    47.6588, -117.4260),
         loc("Spokane Valley Mall", 47.6750, -117.2364),

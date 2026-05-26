@@ -1,30 +1,10 @@
 default_platform(:android)
 
-# Play Developer API track names (per Google):
-#   production | beta | alpha | internal
-# The Play Console UI calls them:
-#   Production | Open testing | Closed testing | Internal testing
-# So lane :closed uploads to the API's `alpha` track (= Closed Testing).
-# If you've created a *custom* closed-testing track in Console (e.g.
-# "qompass-internal"), pass its exact name via the FASTLANE_TRACK env var.
-#
-# Pre-flight (required ONE TIME before any upload lane will work):
-#   1. Sign in to https://play.google.com/console as phaedrusflow
-#   2. Create app -> Application name = ONTrack,
-#      Package name = com.qompassai.ontrack  (must match Appfile)
-#   3. Manually upload one signed AAB to Internal testing via the Console UI
-#      (this is what registers the package_name with the API; fastlane
-#      cannot create the app, only update it).
-#   4. Grant the fastlane service account Release permissions under
-#      Users & permissions in Play Console.
-#   See fastlane/INIT.md for the full runbook.
 
 ONTRACK_AAB_DEFAULT     = "crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab"
 ONTRACK_SYMBOLS_DEFAULT = "crates/ontrack-mobile/android/app/build/outputs/native-debug-symbols/native-debug-symbols.zip"
 ONTRACK_PACKAGE         = "com.qompassai.ontrack"
 
-# Helper: resolve the AAB path (env override -> default), build it unless
-# ONTRACK_SKIP_BUILD=1 and a cached AAB already exists, then return the path.
 def ensure_aab(root)
   aab = ENV.fetch("ONTRACK_AAB", "#{root}/#{ONTRACK_AAB_DEFAULT}")
   unless ENV["ONTRACK_SKIP_BUILD"] == "1" && File.exist?(aab)
@@ -34,18 +14,11 @@ def ensure_aab(root)
   aab
 end
 
-# Helper: resolve the native-debug-symbols.zip path (env override -> default).
-# Returns nil if the zip doesn't exist on disk so callers can omit the
-# mapping argument instead of erroring out.
 def resolve_symbols(root)
   zip = ENV.fetch("ONTRACK_SYMBOLS", "#{root}/#{ONTRACK_SYMBOLS_DEFAULT}")
   File.exist?(zip) ? zip : nil
 end
 
-# Helper: wrap upload_to_play_store with a friendly error when the Play
-# Console app hasn't been bootstrapped yet. The Play Developer API v3
-# cannot create new apps; fastlane only updates existing ones, so the
-# first AAB MUST be uploaded manually through the Console UI.
 def upload_with_bootstrap_hint(**opts)
   upload_to_play_store(**opts)
 rescue => e

@@ -1,11 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-core/src/config.rs
-// Qompass AI — OnTrack core: runtime configuration
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// -----------------------------------------------------
-//! Runtime configuration loaded from environment variables.
-//!
-//! `.env` files are loaded automatically on desktop builds via `dotenvy`.
-//! Android builds rely on process environment only.
 
 use std::env;
 
@@ -15,7 +7,6 @@ pub const ORG_NAME: &str = "TDS Telecom";
 
 pub const OSRM_PUBLIC: &str = "http://router.project-osrm.org";
 
-/// Runtime configuration snapshot.
 #[derive(Debug, Clone)]
 pub struct Settings {
     pub google_maps_api_key: String,
@@ -36,9 +27,7 @@ impl Default for Settings {
 }
 
 impl Settings {
-    /// Load settings from environment variables (and `.env` if present).
     pub fn from_env() -> Self {
-        // Best-effort .env load — silently ignored on Android / when missing.
         let _ = dotenvy::dotenv();
 
         Self {

@@ -1,23 +1,9 @@
-// /qompassai/ontrack-rs/crates/ontrack-core/src/geocoder.rs
-// Qompass AI — OnTrack core: address geocoding
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// -----------------------------------------------------
-//! Address geocoding and current-location detection.
-//!
-//! Backends:
-//!   - **Nominatim** — free, default, no API key
-//!   - **Google Geocoding API** — optional, better rural accuracy
-//!
-//! Current location:
-//!   - Desktop: IP-based via `ip-api.com` (no perms required)
-//!   - Android: GPS via JNI (delegated to host code in `ontrack-mobile`)
 
 use anyhow::{anyhow, Result};
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
-/// A geocoded address with optional coordinates.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Location {
     pub address: String,
@@ -42,7 +28,6 @@ fn http_client() -> Result<Client> {
         .map_err(|e| anyhow!("http client build: {e}"))
 }
 
-// ── Nominatim ──────────────────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 struct NominatimHit {
@@ -50,7 +35,6 @@ struct NominatimHit {
     lon: String,
 }
 
-/// Geocode a single address via OpenStreetMap Nominatim.
 pub fn geocode_address_nominatim(addr: &str) -> Result<Location> {
     let client = http_client()?;
     let resp: Vec<NominatimHit> = client
@@ -68,7 +52,6 @@ pub fn geocode_address_nominatim(addr: &str) -> Result<Location> {
     Ok(loc)
 }
 
-// ── Google Geocoding ───────────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 struct GoogleGeoResp {
@@ -89,7 +72,6 @@ struct LatLng {
     lng: f64,
 }
 
-/// Geocode a single address via Google Geocoding API.
 pub fn geocode_address_google(addr: &str, api_key: &str) -> Result<Location> {
     let client = http_client()?;
     let resp: GoogleGeoResp = client
@@ -109,10 +91,6 @@ pub fn geocode_address_google(addr: &str, api_key: &str) -> Result<Location> {
     Ok(loc)
 }
 
-/// Geocode a list of addresses sequentially.
-///
-/// `progress` is called with `(done, total)` after each address. Errors on
-/// individual addresses are swallowed — those entries remain unresolved.
 pub fn geocode_addresses(
     addresses: &[String],
     use_google: bool,
@@ -137,7 +115,6 @@ pub fn geocode_addresses(
     out
 }
 
-// ── Current location ───────────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 struct IpApiResp {
@@ -146,10 +123,6 @@ struct IpApiResp {
     lon: Option<f64>,
 }
 
-/// Coarse current-location lookup via IP geolocation (desktop fallback).
-///
-/// On Android, callers should provide a GPS-derived `Location` directly
-/// (see `ontrack-mobile`'s `gps` module).
 pub fn get_current_location() -> Option<Location> {
     let client = http_client().ok()?;
     let resp: IpApiResp = client

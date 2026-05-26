@@ -1,21 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-core/src/voice.rs
-// Qompass AI — OnTrack core: voice capture + Whisper transcription
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// --------------------------------------------------------------------
-//! Cross-platform voice capture (`cpal`) and offline transcription (`whisper-rs`).
-//!
-//! Enable with the `voice` feature.
-//!
-//! Audio capture:
-//!   - Linux   → cpal via ALSA/PipeWire (pipewire-alsa or pipewire-pulse)
-//!   - Windows → cpal via WASAPI
-//!   - macOS   → cpal via CoreAudio
-//!   - Android → mobile crate uses cpal/oboe; see `ontrack-mobile::voice`
-//!
-//! Transcription:
-//!   - whisper.cpp via whisper-rs — fully offline, no network calls
-//!   - Model file path defaults to `~/.cache/ontrack/whisper/ggml-base.bin`
-//!     Download from: <https://huggingface.co/ggerganov/whisper.cpp>
 
 #![cfg(feature = "voice")]
 
@@ -30,7 +12,6 @@ pub const SAMPLE_RATE: u32 = 16_000;
 pub const CHANNELS: u16 = 1;
 pub const MAX_RECORD_S: u64 = 60;
 
-/// Transcription result.
 #[derive(Debug, Clone)]
 pub struct VoiceResult {
     pub text: String,
@@ -54,11 +35,6 @@ pub enum RecordingState {
     Error,
 }
 
-/// Return path of the Whisper model file.
-///
-/// Honors `ONTRACK_WHISPER_MODEL_PATH`; falls back to
-/// `$XDG_CACHE_HOME/ontrack/whisper/ggml-<size>.bin`
-/// (or `$HOME/.cache/ontrack/whisper/...`).
 pub fn default_model_path(size: &str) -> PathBuf {
     if let Ok(p) = std::env::var("ONTRACK_WHISPER_MODEL_PATH") {
         return PathBuf::from(p);
@@ -73,7 +49,6 @@ fn dirs_cache() -> Option<PathBuf> {
         .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".cache")))
 }
 
-/// Cross-platform microphone recorder using `cpal`.
 pub struct VoiceRecognizer {
     model_size: String,
     language: Option<String>,
@@ -99,7 +74,6 @@ impl VoiceRecognizer {
         *self.state.lock().unwrap()
     }
 
-    /// Start microphone capture (non-blocking).
     pub fn start_recording(&self) -> Result<()> {
         if self.state() == RecordingState::Recording {
             return Ok(());
@@ -156,12 +130,8 @@ impl VoiceRecognizer {
         *self.stream.lock().unwrap() = Some(stream);
         *self.state.lock().unwrap() = RecordingState::Recording;
 
-        // Resampling note: real builds should resample `target_rate` → 16 kHz
-        // before transcription. For simplicity we record at device rate and
-        // resample at transcribe time below.
         let _ = target_rate;
 
-        // Auto-stop watchdog.
         let state = self.state.clone();
         let max = self.max_seconds;
         thread::spawn(move || {
@@ -174,7 +144,6 @@ impl VoiceRecognizer {
         Ok(())
     }
 
-    /// Stop recording and transcribe (blocking).
     pub fn stop_and_transcribe(&self) -> VoiceResult {
         if self.state() != RecordingState::Recording {
             return VoiceResult {
@@ -196,9 +165,6 @@ impl VoiceRecognizer {
     }
 }
 
-/// Transcribe an i16 PCM buffer at device sample rate.
-///
-/// Resamples to 16 kHz mono via linear interpolation, then runs whisper.cpp.
 pub fn transcribe_pcm(
     audio: &[i16],
     model_path: &std::path::Path,
@@ -215,8 +181,6 @@ pub fn transcribe_pcm(
         };
     }
 
-    // Assume device delivered at SAMPLE_RATE. In production, plumb the actual
-    // rate through and resample here.
     let duration = audio.len() as f64 / SAMPLE_RATE as f64;
 
     let f32_audio: Vec<f32> = audio.iter().map(|&s| s as f32 / 32768.0).collect();

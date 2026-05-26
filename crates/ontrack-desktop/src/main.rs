@@ -1,8 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-desktop/src/main.rs
-// Qompass AI — OnTrack desktop (egui/eframe)
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// -----------------------------------------------------
-//! OnTrack desktop entry point.
 
 mod app;
 mod views;

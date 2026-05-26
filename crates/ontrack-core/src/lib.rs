@@ -1,17 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-core/src/lib.rs
-// Qompass AI — OnTrack core (Rust)
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// ----------------------------------------------------
-//! Pure-Rust core for OnTrack route optimization.
-//!
-//! Modules:
-//!   - [`parser`]   — CSV / XLSX → `Vec<String>` addresses
-//!   - [`geocoder`] — address → lat/lng via Nominatim or Google
-//!   - [`matrix`]   — NxN duration/distance matrix (OSRM, Google, Haversine)
-//!   - [`solver`]   — TSP solver (nearest-neighbor + 2-opt local search)
-//!   - [`exporter`] — CSV, Google Maps, ArcGIS FieldMaps, Street View, Waze URLs
-//!   - [`config`]   — runtime env-var configuration
-//!   - [`voice`]    — (feature `voice`) whisper-rs speech to text
 
 pub mod config;
 pub mod exporter;

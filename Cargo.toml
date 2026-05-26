@@ -1,6 +1,3 @@
-# ontrack-rs — Cargo workspace
-# TDS Telecom Field Route Optimizer (pure Rust)
-# Copyright (C) 2026 Qompass AI, All rights reserved
 
 [workspace]
 resolver = "2"
@@ -18,59 +15,42 @@ license     = "AGPL-3.0"
 repository  = "https://github.com/qompassai/ONTrack-rs"
 description = "TDS Telecom field route optimizer — Rust implementation"
 
-# ── Shared dependency versions ────────────────────────────────────────────────
 [workspace.dependencies]
 
-# Async / HTTP
 tokio       = { version = "1",    features = ["rt-multi-thread", "macros", "fs", "io-util", "sync", "time"] }
 reqwest     = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "blocking"] }
 
-# Serialization / data
 serde       = { version = "1",    features = ["derive"] }
 serde_json  = "1"
 csv         = "1"
 calamine    = "0.30"        # XLSX/XLS reader (replaces pandas for parser)
 
-# Error handling
 anyhow      = "1"
 thiserror   = "1"
 
-# URL / config / logging
 url         = "2"
 urlencoding = "2"
 dotenvy     = "0.15"
 log         = "0.4"
 env_logger  = "0.11"
 
-# Desktop GUI (egui/eframe)
-# eframe must enable a Linux windowing backend (wayland/x11) or winit fails
-# with "The platform you're compiling for is not supported by winit".
-# We enable both so the same binary works on Hyprland (Wayland) and X11/XWayland.
 eframe      = { version = "0.30", default-features = false, features = ["default_fonts", "glow", "persistence", "wayland", "x11"] }
 egui        = "0.30"
 egui_extras = { version = "0.30", features = ["all_loaders"] }
 rfd         = "0.15"        # native file picker
 
-# Mobile GUI (Slint)
 slint       = { version = "1.9",  default-features = false, features = ["compat-1-2", "renderer-skia", "backend-android-activity-06"] }
 slint-build = "1.9"
 
-# Android FFI
 android_logger    = "0.14"
 android-activity  = { version = "0.6", features = ["native-activity"] }
 jni               = "0.21"
 ndk-context       = "0.1"
 
-# Optional voice stack (desktop only; gated behind `voice` feature)
 cpal        = "0.15"
 hound       = "3"
 whisper-rs  = "0.13"
 
-# ─── Release profile ────────────────────────────────────────────────────────
-# Keep DWARF debug info in the .so files. The build script strips a copy of
-# each .so for the AAB (so the shipped app stays small) and zips the
-# unstripped originals into native-debug-symbols.zip for Play Console crash
-# symbolication. Without this, Android Vitals shows crashes as raw addresses.
 [profile.release]
 debug         = true       # full DWARF; required for native-debug-symbols.zip
 strip         = false      # do NOT strip - we strip manually for the AAB only

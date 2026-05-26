@@ -1,6 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-core/tests/parser.rs
-// Qompass AI — parser integration tests
-// Copyright (C) 2026 Qompass AI, All rights reserved.
 use ontrack_core::parse_addresses;
 use std::io::Write;
 

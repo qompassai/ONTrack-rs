@@ -1,13 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-core/src/matrix.rs
-// Qompass AI — OnTrack core: distance/duration matrix
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// -----------------------------------------------------
-//! NxN distance/duration matrix builder.
-//!
-//! Backends:
-//!   - `Osrm`      — free public OSRM server (or self-hosted) — driving seconds
-//!   - `Google`    — Google Distance Matrix API — traffic-aware driving seconds
-//!   - `Haversine` — straight-line metres, no API call
 
 use anyhow::{anyhow, Result};
 use reqwest::blocking::Client;
@@ -17,7 +7,6 @@ use std::time::Duration;
 use crate::config::OSRM_PUBLIC;
 use crate::geocoder::Location;
 
-/// Distance matrix backend.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Backend {
     Osrm,
@@ -36,7 +25,6 @@ impl Backend {
     }
 }
 
-/// Great-circle distance between two lat/lng points (metres).
 pub fn haversine(lat1: f64, lng1: f64, lat2: f64, lng2: f64) -> f64 {
     let r = 6_371_000.0_f64;
     let phi1 = lat1.to_radians();
@@ -56,7 +44,6 @@ fn http_client() -> Result<Client> {
         .map_err(|e| anyhow!("http client build: {e}"))
 }
 
-// ── OSRM ───────────────────────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 struct OsrmResp {
@@ -90,7 +77,6 @@ fn osrm_matrix(locations: &[&Location], base_url: &str) -> Result<Vec<Vec<f64>>>
         .ok_or_else(|| anyhow!("OSRM response missing durations"))
 }
 
-// ── Google Distance Matrix ────────────────────────────────────────────────
 
 #[derive(Deserialize)]
 struct GoogleResp {
@@ -149,7 +135,6 @@ fn google_matrix(locations: &[&Location], api_key: &str) -> Result<Vec<Vec<f64>>
                     let val = if elem.status == "OK" {
                         elem.duration.as_ref().map(|d| d.value).unwrap_or(0.0)
                     } else {
-                        // Fallback to haversine for blocked / out-of-range cells.
                         let a = locations[i + ri];
                         let b = locations[j + ci];
                         haversine(
@@ -185,9 +170,6 @@ fn haversine_matrix(locations: &[&Location]) -> Vec<Vec<f64>> {
     m
 }
 
-/// Build an NxN distance / duration matrix from geocoded locations.
-///
-/// Unresolved locations (missing lat/lng) are excluded.
 pub fn build_distance_matrix(
     locations: &[Location],
     backend: Backend,

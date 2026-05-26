@@ -1,8 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-desktop/src/views/settings.rs
-// Qompass AI — OnTrack desktop: Settings view
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// -----------------------------------------------------
-//! In-app settings editor — persists API keys and OSRM URL to `.env`.
 
 use std::fs;
 use std::path::PathBuf;

@@ -1,9 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-desktop/src/views/home.rs
-// Qompass AI — OnTrack desktop: Home view (address entry + import)
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// --------------------------------------------------------------------
-//! Address entry, CSV/Excel import, current-location seed, and the
-//! "Optimize Route" trigger.
 
 use eframe::egui;
 use ontrack_core::matrix::Backend;
@@ -14,7 +8,6 @@ pub fn ui(app: &mut OnTrackApp, ui: &mut egui::Ui) {
     ui.heading("Stops");
     ui.add_space(4.0);
 
-    // Add controls
     ui.horizontal(|ui| {
         let resp = ui.add(
             egui::TextEdit::singleline(&mut app.address_input)
@@ -54,7 +47,6 @@ pub fn ui(app: &mut OnTrackApp, ui: &mut egui::Ui) {
 
     ui.add_space(8.0);
 
-    // Address list
     let mut to_remove: Option<usize> = None;
     egui::ScrollArea::vertical()
         .max_height(360.0)
@@ -78,7 +70,6 @@ pub fn ui(app: &mut OnTrackApp, ui: &mut egui::Ui) {
     ui.add_space(12.0);
     ui.separator();
 
-    // Backend selection
     ui.horizontal(|ui| {
         ui.label("Distance backend:");
         egui::ComboBox::from_id_salt("backend_combo")

@@ -1,20 +1,9 @@
-// /qompassai/ontrack-rs/crates/ontrack-core/src/parser.rs
-// Qompass AI — OnTrack core: address file parser
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// -----------------------------------------------------
-//! CSV / Excel parser.
-//!
-//! Files must contain a column named `address` (case-insensitive). All other
-//! columns are ignored. Empty cells are skipped.
 
 use std::path::Path;
 
 use anyhow::{anyhow, Context, Result};
 use calamine::{open_workbook_auto, Data, Reader};
 
-/// Parse a CSV or Excel file and return a list of address strings.
-///
-/// Supported extensions: `.csv`, `.xlsx`, `.xls`, `.xlsm`, `.xlsb`, `.ods`.
 pub fn parse_addresses<P: AsRef<Path>>(path: P) -> Result<Vec<String>> {
     let path = path.as_ref();
     let ext = path

@@ -1,14 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-core/src/exporter.rs
-// Qompass AI — OnTrack core: route export & external map integration
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// --------------------------------------------------------------------
-//! Route export and external map deep-link builders.
-//!
-//! - CSV export of an ordered stop list
-//! - Google Maps Directions URL (browser + Android/iOS Maps app)
-//! - Google Street View Static API URL (image) + interactive embed
-//! - ArcGIS FieldMaps deep link (`https://fieldmaps.arcgis.app?...`)
-//! - Waze navigation deep link
 
 use anyhow::{anyhow, Result};
 use std::fs::File;
@@ -16,7 +5,6 @@ use std::io::Write;
 use std::path::Path;
 use urlencoding::encode;
 
-// ── CSV export ─────────────────────────────────────────────────────────────
 
 pub fn export_csv<P: AsRef<Path>>(ordered_addresses: &[String], output_path: P) -> Result<()> {
     let mut f = File::create(output_path)?;
@@ -28,7 +16,6 @@ pub fn export_csv<P: AsRef<Path>>(ordered_addresses: &[String], output_path: P) 
     Ok(())
 }
 
-// ── Google Maps URLs ───────────────────────────────────────────────────────
 
 pub fn build_maps_url(ordered_addresses: &[String]) -> String {
     if ordered_addresses.is_empty() {
@@ -54,7 +41,6 @@ pub fn build_maps_url(ordered_addresses: &[String]) -> String {
     base
 }
 
-/// Split a long route into multiple Google Maps URLs (max 10 stops each).
 pub fn build_maps_url_chunked(ordered_addresses: &[String]) -> Vec<String> {
     ordered_addresses
         .chunks(10)
@@ -62,7 +48,6 @@ pub fn build_maps_url_chunked(ordered_addresses: &[String]) -> Vec<String> {
         .collect()
 }
 
-// ── Street View ────────────────────────────────────────────────────────────
 
 #[allow(clippy::too_many_arguments)]
 pub fn build_streetview_url(
@@ -108,7 +93,6 @@ pub fn build_streetview_embed_url(lat: f64, lng: f64) -> String {
     format!("https://www.google.com/maps/@{lat},{lng},3a,90y,0h,90t/data=!3m4!1e1!3m2!1s!2e0")
 }
 
-// ── ArcGIS FieldMaps ──────────────────────────────────────────────────────
 
 pub fn build_fieldmaps_url(
     address: &str,
@@ -129,13 +113,11 @@ pub fn build_fieldmaps_url(
     format!("https://fieldmaps.arcgis.app?{}", parts.join("&"))
 }
 
-// ── Waze ───────────────────────────────────────────────────────────────────
 
 pub fn build_waze_url(lat: f64, lng: f64) -> String {
     format!("https://waze.com/ul?ll={lat},{lng}&navigate=yes&zoom=17")
 }
 
-// ── Duration formatting ───────────────────────────────────────────────────
 
 pub fn format_duration(seconds: f64) -> String {
     let mins = (seconds / 60.0) as u64;

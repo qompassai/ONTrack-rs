@@ -1,9 +1,3 @@
-// /qompassai/ontrack-rs/crates/ontrack-desktop/src/views/results.rs
-// Qompass AI — OnTrack desktop: Results view
-// Copyright (C) 2026 Qompass AI, All rights reserved.
-// -----------------------------------------------------
-//! Optimized route display with launch buttons (Google Maps, FieldMaps, Waze)
-//! and CSV export.
 
 use eframe::egui;
 
