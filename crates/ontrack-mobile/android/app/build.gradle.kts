@@ -16,7 +16,7 @@ plugins {
 }
 
 android {
-    namespace   = "ontrack.myapp"
+    namespace   = "com.qompassai.ontrack"
     compileSdk  = 36
 
     // Auto-detect NDK from ANDROID_NDK_HOME (set by scripts/build-android.sh).
@@ -29,7 +29,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "ontrack.myapp"
+        applicationId = "com.qompassai.ontrack"
         minSdk        = 26
         targetSdk     = 35
         versionCode   = 200
