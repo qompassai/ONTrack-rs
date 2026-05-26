@@ -1,0 +1,18 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build ONTrack Android AAB and upload to closed testing"
+  lane :closed do
+    root = File.expand_path("..", __dir__)
+    sh("bash #{root}/scripts/build-android.sh")
+
+    upload_to_play_store(
+      aab: "#{root}/crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab",
+      track: "closed",
+      release_status: "draft",
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+end

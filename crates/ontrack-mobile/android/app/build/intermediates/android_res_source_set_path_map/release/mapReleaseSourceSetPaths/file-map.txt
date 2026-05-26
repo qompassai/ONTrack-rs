@@ -1,0 +1,8 @@
+com.qompassai.ontrack.app-pngs-0 /home/phaedrus/.GH/Qompass/ONTrack-rs/crates/ontrack-mobile/android/app/build/generated/res/pngs/release
+com.qompassai.ontrack.app-updated_navigation_xml-1 /home/phaedrus/.GH/Qompass/ONTrack-rs/crates/ontrack-mobile/android/app/build/generated/updated_navigation_xml/release
+com.qompassai.ontrack.app-packageReleaseResources-2 /home/phaedrus/.GH/Qompass/ONTrack-rs/crates/ontrack-mobile/android/app/build/intermediates/incremental/release/packageReleaseResources/merged.dir
+com.qompassai.ontrack.app-packageReleaseResources-3 /home/phaedrus/.GH/Qompass/ONTrack-rs/crates/ontrack-mobile/android/app/build/intermediates/incremental/release/packageReleaseResources/stripped.dir
+com.qompassai.ontrack.app-release-4 /home/phaedrus/.GH/Qompass/ONTrack-rs/crates/ontrack-mobile/android/app/build/intermediates/merged_res/release/mergeReleaseResources
+com.qompassai.ontrack.app-main-5 /home/phaedrus/.GH/Qompass/ONTrack-rs/crates/ontrack-mobile/android/app/src/main/res
+com.qompassai.ontrack.app-release-6 /home/phaedrus/.GH/Qompass/ONTrack-rs/crates/ontrack-mobile/android/app/src/release/res
+gradleHome-0 /home/phaedrus/.gradle

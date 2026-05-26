@@ -1,0 +1,5 @@
+com.qompassai.ontrack:mipmap/ic_launcher_round = 0x7f020001
+com.qompassai.ontrack:string/app_name = 0x7f030000
+com.qompassai.ontrack:mipmap/ic_launcher = 0x7f020000
+com.qompassai.ontrack:color/tds_navy = 0x7f010001
+com.qompassai.ontrack:color/tds_accent = 0x7f010000

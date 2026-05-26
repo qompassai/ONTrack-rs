@@ -1,0 +1,43 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.qompassai.ontrack.app-release-3:/values_values.arsc.flat",
+            "map": [
+                {
+                    "source": "/home/phaedrus/.GH/Qompass/ONTrack-rs/crates/ontrack-mobile/android/app/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "44",
+                        "endOffsets": "95"
+                    },
+                    "to": {
+                        "startLines": "4",
+                        "startColumns": "4",
+                        "startOffsets": "143",
+                        "endColumns": "44",
+                        "endOffsets": "183"
+                    }
+                },
+                {
+                    "source": "/home/phaedrus/.GH/Qompass/ONTrack-rs/crates/ontrack-mobile/android/app/src/main/res/values/colors.xml",
+                    "from": {
+                        "startLines": "3,2",
+                        "startColumns": "4,4",
+                        "startOffsets": "98,55",
+                        "endColumns": "44,42",
+                        "endOffsets": "138,93"
+                    },
+                    "to": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,100",
+                        "endColumns": "44,42",
+                        "endOffsets": "95,138"
+                    }
+                }
+            ]
+        }
+    ]
+}

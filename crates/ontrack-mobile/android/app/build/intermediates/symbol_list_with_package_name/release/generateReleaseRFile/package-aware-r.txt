@@ -1,0 +1,6 @@
+com.qompassai.ontrack
+color tds_accent
+color tds_navy
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name

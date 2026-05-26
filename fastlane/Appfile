@@ -1,0 +1,2 @@
+package_name("com.qompassai.ontrack")
+json_key_file("#{ENV['XDG_CONFIG_HOME'] || File.expand_path('~/.config')}/fastlane/google-play-ontrack.json")
