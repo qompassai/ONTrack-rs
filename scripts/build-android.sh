@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
-# scripts/build-android.sh — Build a signed AAB for Google Play Console.
+# scripts/build-android.sh — Build signed Android artifacts for ONTrack.
+#
+# Usage:
+#   bash scripts/build-android.sh            # AAB only (default — for Play upload)
+#   bash scripts/build-android.sh aab        # AAB only (explicit)
+#   bash scripts/build-android.sh apk        # APK only (sideloading)
+#   bash scripts/build-android.sh both       # AAB + APK in one Rust build
+#   bash scripts/build-android.sh --help     # this message
+#
+# Why two artifacts?
+#   AAB = upload to Google Play; Play repackages it per-device.
+#   APK = direct install file; share over Signal/email to testers who
+#         can't or won't use a Google account.
 #
 # Requires on the host:
 #   - rustup, with cross targets:
@@ -17,6 +29,22 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ANDROID_DIR="$ROOT/crates/ontrack-mobile/android"
+
+# ── Mode dispatch ───────────────────────────────────────────────────────
+MODE="${1:-aab}"
+case "$MODE" in
+    -h|--help)
+        # Print only the leading comment header for help output.
+        awk '/^$/{exit} /^#/{sub(/^# ?/, ""); print}' "$0"
+        exit 0
+        ;;
+    aab|apk|both) ;;
+    *)
+        echo "✗ unknown mode: $MODE  (use: aab | apk | both | --help)" >&2
+        exit 2
+        ;;
+esac
+echo "→ build mode: $MODE"
 
 # ── Sanitize host-only rustflags ─────────────────────────────────────────────
 # A common Arch/Hyprland setup exports `-C target-cpu=native` (or sets the
@@ -189,11 +217,38 @@ else
     exit 1
 fi
 
-"$GRADLE" :app:bundleRelease
+# Map our mode to the Gradle task list. bundleRelease produces the .aab,
+# assembleRelease produces the .apk. Running both in one Gradle invocation
+# reuses the same incremental state, so it's faster than back-to-back calls.
+GRADLE_TASKS=()
+case "$MODE" in
+    aab)  GRADLE_TASKS+=(:app:bundleRelease) ;;
+    apk)  GRADLE_TASKS+=(:app:assembleRelease) ;;
+    both) GRADLE_TASKS+=(:app:bundleRelease :app:assembleRelease) ;;
+esac
+
+echo "→ gradle tasks: ${GRADLE_TASKS[*]}"
+"$GRADLE" "${GRADLE_TASKS[@]}"
 
 echo
-echo "→ AAB ready:"
-ls -la "$ANDROID_DIR/app/build/outputs/bundle/release/"
-echo
-echo "→ native debug symbols ready (upload alongside the AAB):"
-ls -la "$ANDROID_DIR/app/build/outputs/native-debug-symbols/"
+if [[ "$MODE" == "aab" || "$MODE" == "both" ]]; then
+    echo "→ AAB ready (upload to Play Console):"
+    ls -la "$ANDROID_DIR/app/build/outputs/bundle/release/"
+    echo
+    echo "→ native debug symbols ready (upload alongside the AAB):"
+    ls -la "$ANDROID_DIR/app/build/outputs/native-debug-symbols/"
+fi
+if [[ "$MODE" == "apk" || "$MODE" == "both" ]]; then
+    echo
+    echo "→ APK ready (sideload-friendly; send directly to testers):"
+    ls -la "$ANDROID_DIR/app/build/outputs/apk/release/"
+    cat <<'EOF'
+
+  Tester install steps:
+    1. Send app-release.apk to the tester (Signal/email/cloud).
+    2. On their phone: Settings -> Apps -> Special app access ->
+       Install unknown apps -> allow the source app (e.g. Files).
+    3. Tap the .apk in their file manager. Play Protect may warn;
+       tap 'Install anyway'.
+EOF
+fi
