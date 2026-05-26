@@ -1,0 +1,56 @@
+[package]
+name        = "ontrack-installer"
+version.workspace    = true
+edition.workspace    = true
+authors.workspace    = true
+license.workspace    = true
+repository.workspace = true
+description = "GUI installer for OnTrack-RS — TDS Telecom Field Route Optimizer (Rust)"
+
+[[bin]]
+name = "ontrack-installer"
+path = "src/main.rs"
+
+[dependencies]
+# GUI
+eframe      = { version = "0.27", features = ["default_fonts"] }
+egui        = "0.27"
+
+# Error handling
+anyhow      = { workspace = true }
+
+# Async runtime (for download step)
+tokio       = { workspace = true }
+
+# HTTP (download release binary)
+reqwest     = { workspace = true }
+
+# Serialization
+serde       = { workspace = true }
+serde_json  = { workspace = true }
+
+# Archive extraction (tar.gz / zip)
+flate2      = "1"
+tar         = "0.4"
+zip         = "2"
+
+# Open URLs
+open        = "5"
+
+# Logging
+tracing            = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+# Home/desktop directory discovery
+dirs-next   = "2"
+
+# Native file/message dialogs
+rfd         = "0.14"
+
+[target.'cfg(windows)'.dependencies]
+# Windows shortcut creation via COM
+windows = { version = "0.58", features = [
+    "Win32_UI_Shell",
+    "Win32_System_Com",
+    "Win32_System_Registry",
+] }

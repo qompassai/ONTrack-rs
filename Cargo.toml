@@ -1,0 +1,48 @@
+# ontrack-rs — Cargo workspace
+# TDS Telecom Field Route Optimizer (Rust)
+# Copyright (C) 2025 Qompass AI, All rights reserved
+
+[workspace]
+resolver = "2"
+members = [
+    "ontrack-core",
+    "ontrack-cli",
+    "ontrack-gui",
+    "ontrack-installer",
+]
+
+[workspace.package]
+version     = "2.0.0"
+edition     = "2021"
+authors     = ["Matt Porter <matt@aflabs.io>"]
+license     = "AGPL-3.0"
+repository  = "https://github.com/qompassai/Python"
+description = "TDS Telecom field route optimizer — Rust implementation"
+
+[workspace.dependencies]
+# Async runtime
+tokio       = { version = "1",  features = ["full"] }
+
+# HTTP client
+reqwest     = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+
+# Serialization
+serde       = { version = "1", features = ["derive"] }
+serde_json  = "1"
+
+# Config / env
+dotenvy     = "0.15"
+
+# Error handling
+anyhow      = "1"
+thiserror   = "1"
+
+# CSV
+csv         = "1"
+
+# URL encoding
+urlencoding = "2"
+
+# Logging
+tracing            = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
