@@ -68,10 +68,56 @@ fi
 
 API_LEVEL="${ANDROID_API_LEVEL:-26}"
 
+# ── Locate (or install) an SDK platform with android.jar ─────────────────────
+# slint's i-slint-backend-android-activity build script calls
+# android_build::android_jar(None), which scans $ANDROID_HOME/platforms/*
+# for an android.jar and panics with "No Android platforms found" if none
+# exists. Newer slint also requires SDK build-tools 35 paired with JDK 17+.
+# We pick the newest installed platform; if none is present, try to install
+# 'platforms;android-35' via sdkmanager.
+resolve_android_jar() {
+    local newest_jar
+    newest_jar=$(ls -1 "$ANDROID_HOME"/platforms/android-*/android.jar 2>/dev/null \
+        | sort -V | tail -n1 || true)
+    if [ -n "$newest_jar" ]; then
+        echo "$newest_jar"
+        return 0
+    fi
+    return 1
+}
+
+if ! ANDROID_JAR_PATH=$(resolve_android_jar); then
+    echo "⚠ no android.jar under $ANDROID_HOME/platforms/. Attempting install…"
+    SDKMGR="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+    if [ ! -x "$SDKMGR" ]; then
+        SDKMGR=$(command -v sdkmanager || true)
+    fi
+    if [ -n "$SDKMGR" ] && [ -x "$SDKMGR" ]; then
+        yes | "$SDKMGR" --licenses >/dev/null || true
+        "$SDKMGR" "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+        ANDROID_JAR_PATH=$(resolve_android_jar) || {
+            echo "✗ sdkmanager ran but no platform appeared under $ANDROID_HOME/platforms"
+            exit 1
+        }
+    else
+        cat >&2 <<EOF
+✗ No Android platform installed and no sdkmanager found.
+  Install once via:
+    sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+  or set ANDROID_JAR=/path/to/android.jar before running this script.
+EOF
+        exit 1
+    fi
+fi
+export ANDROID_JAR="${ANDROID_JAR:-$ANDROID_JAR_PATH}"
+export ANDROID_PLATFORM="${ANDROID_PLATFORM:-$(basename "$(dirname "$ANDROID_JAR")")}"
+
 echo "→ ANDROID_HOME=$ANDROID_HOME"
 echo "→ ANDROID_NDK_HOME=$ANDROID_NDK_HOME"
+echo "→ ANDROID_JAR=$ANDROID_JAR"
+echo "→ ANDROID_PLATFORM=$ANDROID_PLATFORM"
 echo "→ JAVA_HOME=${JAVA_HOME:-<system default>}"
-echo "→ API level: $API_LEVEL"
+echo "→ API level (min): $API_LEVEL"
 echo "→ CARGO_TARGET_DIR=$CARGO_TARGET_DIR"
 echo
 
