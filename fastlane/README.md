@@ -21,7 +21,31 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane android closed
 ```
 
-Build ONTrack Android AAB and upload to closed testing
+Build ONTrack Android AAB and upload to Closed Testing (API track 'alpha')
+
+### android internal
+
+```sh
+[bundle exec] fastlane android internal
+```
+
+Build ONTrack Android AAB and upload to Internal testing (fastest review path)
+
+### android check_auth
+
+```sh
+[bundle exec] fastlane android check_auth
+```
+
+Validate service-account credentials only (no build, no AAB needed)
+
+### android validate
+
+```sh
+[bundle exec] fastlane android validate
+```
+
+Build + dry-run upload (validate_only). Builds AAB then asks Google to validate it.
 
 ----
 
