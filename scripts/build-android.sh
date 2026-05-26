@@ -135,15 +135,46 @@ for TRIPLE in aarch64-linux-android armv7-linux-androideabi; do
         -- build --release -p ontrack-mobile
 done
 
-# ── Stage .so files into Gradle jniLibs ──────────────────────────────────────
+# ── Stage .so + build native-debug-symbols.zip ───────────────────────────────
+# Play Console wants two separate artifacts:
+#   1. AAB containing STRIPPED .so files (small download for users)
+#   2. native-debug-symbols.zip containing UNSTRIPPED .so with DWARF
+#      (uploaded alongside the AAB so Android Vitals can symbolicate crashes)
+# The NDK ships an llvm-strip we use to produce the stripped copies; the
+# unstripped originals from cargo's target/ tree are zipped as-is.
+SYMBOLS_DIR="$ANDROID_DIR/app/build/native-debug-symbols"
+SYMBOLS_ZIP="$ANDROID_DIR/app/build/outputs/native-debug-symbols/native-debug-symbols.zip"
+rm -rf "$SYMBOLS_DIR"
+mkdir -p "$SYMBOLS_DIR" "$(dirname "$SYMBOLS_ZIP")"
+
+NDK_STRIP=$(find "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt" \
+    -maxdepth 3 -name 'llvm-strip' -type f 2>/dev/null | head -n1 || true)
+[ -x "$NDK_STRIP" ] || { echo "✗ llvm-strip not found under $ANDROID_NDK_HOME"; exit 1; }
+echo "→ using strip: $NDK_STRIP"
+
 for PAIR in "arm64-v8a:aarch64-linux-android" "armeabi-v7a:armv7-linux-androideabi"; do
     ABI=${PAIR%%:*}; TRIPLE=${PAIR##*:}
     SRC="$CARGO_TARGET_DIR/$TRIPLE/release/libontrack_mobile.so"
     DST="$ANDROID_DIR/app/src/main/jniLibs/$ABI"
+    SYM_ABI="$SYMBOLS_DIR/$ABI"
     [ -f "$SRC" ] || { echo "✗ missing $SRC"; exit 1; }
-    mkdir -p "$DST"
-    cp -v "$SRC" "$DST/"
+    mkdir -p "$DST" "$SYM_ABI"
+
+    # 1) Unstripped copy → symbols zip staging (full DWARF preserved).
+    cp "$SRC" "$SYM_ABI/libontrack_mobile.so"
+    # 2) Stripped copy → Gradle jniLibs (what actually ships in the AAB).
+    "$NDK_STRIP" --strip-unneeded "$SRC" -o "$DST/libontrack_mobile.so"
+    echo "  $ABI:"
+    echo "    stripped (ship): $(stat -c%s "$DST/libontrack_mobile.so") bytes → $DST/libontrack_mobile.so"
+    echo "    debug   (zip):   $(stat -c%s "$SYM_ABI/libontrack_mobile.so") bytes → $SYM_ABI/libontrack_mobile.so"
 done
+
+# Zip with the exact directory structure Play Console expects:
+#   arm64-v8a/libontrack_mobile.so
+#   armeabi-v7a/libontrack_mobile.so
+rm -f "$SYMBOLS_ZIP"
+(cd "$SYMBOLS_DIR" && zip -qr "$SYMBOLS_ZIP" .)
+echo "→ native debug symbols: $SYMBOLS_ZIP ($(stat -c%s "$SYMBOLS_ZIP") bytes)"
 
 # ── Gradle: assemble release AAB ─────────────────────────────────────────────
 cd "$ANDROID_DIR"
@@ -163,3 +194,6 @@ fi
 echo
 echo "→ AAB ready:"
 ls -la "$ANDROID_DIR/app/build/outputs/bundle/release/"
+echo
+echo "→ native debug symbols ready (upload alongside the AAB):"
+ls -la "$ANDROID_DIR/app/build/outputs/native-debug-symbols/"

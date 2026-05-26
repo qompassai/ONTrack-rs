@@ -65,3 +65,16 @@ ndk-context       = "0.1"
 cpal        = "0.15"
 hound       = "3"
 whisper-rs  = "0.13"
+
+# ─── Release profile ────────────────────────────────────────────────────────
+# Keep DWARF debug info in the .so files. The build script strips a copy of
+# each .so for the AAB (so the shipped app stays small) and zips the
+# unstripped originals into native-debug-symbols.zip for Play Console crash
+# symbolication. Without this, Android Vitals shows crashes as raw addresses.
+[profile.release]
+debug         = true       # full DWARF; required for native-debug-symbols.zip
+strip         = false      # do NOT strip - we strip manually for the AAB only
+lto           = "thin"     # smaller binary, faster startup
+codegen-units = 1          # better optimization, also better symbols
+panic         = "abort"    # smaller binary; Android can't unwind across JNI anyway
+opt-level     = 3

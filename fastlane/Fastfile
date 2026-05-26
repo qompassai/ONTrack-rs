@@ -19,8 +19,9 @@ default_platform(:android)
 #      Users & permissions in Play Console.
 #   See fastlane/INIT.md for the full runbook.
 
-ONTRACK_AAB_DEFAULT = "crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab"
-ONTRACK_PACKAGE     = "com.qompassai.ontrack"
+ONTRACK_AAB_DEFAULT     = "crates/ontrack-mobile/android/app/build/outputs/bundle/release/app-release.aab"
+ONTRACK_SYMBOLS_DEFAULT = "crates/ontrack-mobile/android/app/build/outputs/native-debug-symbols/native-debug-symbols.zip"
+ONTRACK_PACKAGE         = "com.qompassai.ontrack"
 
 # Helper: resolve the AAB path (env override -> default), build it unless
 # ONTRACK_SKIP_BUILD=1 and a cached AAB already exists, then return the path.
@@ -31,6 +32,14 @@ def ensure_aab(root)
   end
   UI.user_error!("AAB still missing at #{aab} after build") unless File.exist?(aab)
   aab
+end
+
+# Helper: resolve the native-debug-symbols.zip path (env override -> default).
+# Returns nil if the zip doesn't exist on disk so callers can omit the
+# mapping argument instead of erroring out.
+def resolve_symbols(root)
+  zip = ENV.fetch("ONTRACK_SYMBOLS", "#{root}/#{ONTRACK_SYMBOLS_DEFAULT}")
+  File.exist?(zip) ? zip : nil
 end
 
 # Helper: wrap upload_to_play_store with a friendly error when the Play
@@ -65,10 +74,12 @@ end
 platform :android do
   desc "Build ONTrack Android AAB and upload to Closed Testing (API track 'alpha')"
   lane :closed do
-    root = File.expand_path("..", __dir__)
-    aab  = ensure_aab(root)
+    root    = File.expand_path("..", __dir__)
+    aab     = ensure_aab(root)
+    symbols = resolve_symbols(root)
+    UI.message("native debug symbols: #{symbols || '(none found - skipping)'}")
 
-    upload_with_bootstrap_hint(
+    opts = {
       aab: aab,
       track: ENV.fetch("FASTLANE_TRACK", "alpha"),
       release_status: "draft",
@@ -76,15 +87,19 @@ platform :android do
       skip_upload_images: true,
       skip_upload_screenshots: true,
       skip_upload_apk: true
-    )
+    }
+    opts[:mapping] = symbols if symbols
+    upload_with_bootstrap_hint(**opts)
   end
 
   desc "Build ONTrack Android AAB and upload to Internal testing (fastest review path)"
   lane :internal do
-    root = File.expand_path("..", __dir__)
-    aab  = ensure_aab(root)
+    root    = File.expand_path("..", __dir__)
+    aab     = ensure_aab(root)
+    symbols = resolve_symbols(root)
+    UI.message("native debug symbols: #{symbols || '(none found - skipping)'}")
 
-    upload_with_bootstrap_hint(
+    opts = {
       aab: aab,
       track: "internal",
       release_status: "draft",
@@ -92,7 +107,9 @@ platform :android do
       skip_upload_images: true,
       skip_upload_screenshots: true,
       skip_upload_apk: true
-    )
+    }
+    opts[:mapping] = symbols if symbols
+    upload_with_bootstrap_hint(**opts)
   end
 
   desc "Validate service-account credentials only (no build, no AAB needed)"
