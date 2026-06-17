@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(pwd)"
 APP_ID="${APP_ID:-com.qompassai.ontrack}"
 DEFAULT_APK_PATH_1="$ROOT/crates/ontrack-mobile/android/app/build/outputs/apk/release/app-release.apk"
-DEFAULT_APK_PATH_2="$ROOT/ontrack-mobile/android/app/build/outputs/apk/release/app-release.apk"
+DEFAULT_APK_PATH_2="$ROOT/crates/ontrack-mobile/android/app/build/outputs/apk/release/app-release.apk"
 APK_PATH="${APK_PATH:-}"
 if [ -z "$APK_PATH" ]; then
     if [ -f "$DEFAULT_APK_PATH_1" ]; then
