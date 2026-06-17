@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   /qompassai/ontrack-rs/crates/ontrack-mobile/android/app/src/main/AndroidManifest.xml
-  Qompass AI — OnTrack Android manifest
+  OnTrack Android manifest
   Copyright (C) 2026 Qompass AI, All rights reserved.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -26,10 +27,6 @@
         android:theme="@android:style/Theme.DeviceDefault.NoActionBar"
         android:hasFragileUserData="true"
         android:supportsRtl="true">
-
-        <!-- android-activity NativeActivity entry point.
-             The native library name MUST match the cdylib name of
-             ontrack-mobile (libontrack_mobile.so). -->
         <activity
             android:name="android.app.NativeActivity"
             android:exported="true"
